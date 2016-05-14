@@ -4,9 +4,9 @@
 
 // Include GLEW
 #ifdef __APPLE__ //For OSX
-#include <gl/glew.h>
 #define _CRT_SECURE_NO_WARNINGS
 #define GL_GLEXT_PROTOTYPES
+#include <gl/glew.h>
 #endif
 
 // Include GLFW
@@ -20,12 +20,32 @@ int main(){
 
     world::Window wd(640, 480, "hello glfw");
 
+    GLfloat vertices[] = {
+            -0.5f, -0.5f, 0.0f,
+            0.5f, -0.5f, 0.0f,
+            0.0f,  0.5f, 0.0f
+    };
+
+    GLuint VBO;
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
 
     while(wd.IsClose()){
-
+        //Handle events
         wd.HandleEvent();
-        wd.SwapBuffers();
 
+        /*
+         * Render here,
+         */
+        wd.ClearColor(0.1, 0.6, 0.8); //Clear color buffer
+
+
+
+
+        //Swap a frame buffer
+        wd.SwapBuffers();
 
     }
 

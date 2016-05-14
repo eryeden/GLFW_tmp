@@ -59,19 +59,24 @@ namespace world{
 //        void SetMagnificationRatio(double rate_); //拡大率の指定
 //
 //
-//        void Clear(); //画面クリア
-//        void ClearColor(double r_, double g_, double b_); //画面クリア 色指定
+        void Clear(); //画面クリア
+        void ClearColor(double r_, double g_, double b_); //画面クリア 色指定
 //        void ClearColor(const glm::vec3 & color_); //画面クリア 色指定
 //
 //
 //        void DrawCircle(double r_, double px_, double py_, double r_, double g_, double b_); //丸描画
 //        void DrawCircle(const glm::vec3 & p_, const glm::vec3 & color_); //丸描画
 
+        //Event handler, static function must be public
+        static void key_callback(GLFWwindow* window_, int key_, int scancode_, int action_, int mode_);
+
 
     private:
 
         //GLFW window context
         GLFWwindow* window; // shared pointer にすべき？
+
+
 
 
     };

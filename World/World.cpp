@@ -83,11 +83,13 @@ Window::Window(unsigned int width_, unsigned int height_, const std::string & wi
     // Ensure we can capture the escape key being pressed below
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
+    // Register callback function
+    glfwSetKeyCallback(window, key_callback);
+
     //OopeGL view port configuration
     int frame_width, frame_height;
     glfwGetFramebufferSize(window, &frame_width, &frame_height);
     glViewport(0, 0, frame_width, frame_height);
-
 }
 
 //デストラクタ
@@ -110,6 +112,25 @@ void Window::SwapBuffers(){
 const GLFWwindow * Window::GetWindowContext() {
     return window;
 }
+
+//イベントハンドラ コールバック関数 これは静的に宣言された関数であるが、これはヘッダファイルでstaticな定義がなされているため、実装部においてはstaticであるとはしてはならない
+void Window::key_callback(GLFWwindow* window_, int key_, int scancode_, int action_, int mode_){
+    // When a user presses the escape key, we set the WindowShouldClose property to true,
+    // closing the application
+    if(key_ == GLFW_KEY_ESCAPE && action_ == GLFW_PRESS)
+        glfwSetWindowShouldClose(window_, GL_TRUE);
+}
+
+//画面クリア
+void Window::Clear() {
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void Window::ClearColor(double r_, double g_, double b_) {
+    glClearColor((float)r_, (float)g_, (float)b_, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
 
 
 
