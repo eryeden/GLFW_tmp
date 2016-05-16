@@ -12,6 +12,7 @@
 // Include GLFW
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
 
 #include "shader.hpp"
 
@@ -41,89 +42,10 @@ int main(){
 
     world::Window wd(640, 480, "hello glfw");
 
-//    GLfloat vertices[] = {
-//            -0.5f, -0.5f, 0.0f,
-//            0.5f, -0.5f, 0.0f,
-//            0.0f,  0.5f, 0.0f
-//    };
 
-    GLfloat vertices[] = {
-            -0.7f, -0.7f, 0.0f,
-            0.7f, -0.7f, 0.0f,
-            0.0f,  0.7f, 0.0f
-    };
-
-
-    GLfloat vertices_elm[] = {
-            0.5f,  0.5f, 0.0f,  // Top Right
-            0.5f, -0.5f, 0.0f,  // Bottom Right
-            -0.5f, -0.5f, 0.0f,  // Bottom Left
-            -0.5f,  0.5f, 0.0f   // Top Left
-    };
-    GLuint indices_elm[] = {  // Note that we start from 0!
-            0, 1, 3,   // First Triangle
-            1, 2, 3    // Second Triangle
-    };
-
-
-    //Load Shader
-    // Create and compile our GLSL program from the shaders
-    const std::string shader_prefix = SHADER_PREFIX; //SHADER_PREFIX is defined by cmake
-    const std::string vertex_shader = "t1_vs.glsl";
-    const std::string fragment_shader = "t1_fs.glsl";
-    GLuint program_id = LoadShaders((shader_prefix + vertex_shader).c_str(), (shader_prefix + fragment_shader).c_str());
-    //Use shader program
-    glUseProgram(program_id);
-
-
-    //Generate vertex array object
-    GLuint VAO;
-    glGenVertexArrays(1, &VAO);
-
-    //Bind VAO
-    glBindVertexArray(VAO);
-
-    //Generate vertex buffer including vertex attributes
-    GLuint VBO;
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    //Set vertex attributes pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(0);
-
-    //Unbind the VBO
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    //Unbind the VAO
-    glBindVertexArray(0);
-
-
-    //Element buffer object version
-    GLuint VAO_elm;
-    glGenVertexArrays(1, &VAO_elm);
-    //Bind
-    glBindVertexArray(VAO_elm);
-    //普通に、indexed drawされる頂点バッファ情報を転送
-    GLuint VBO_elm;
-    glGenBuffers(1, &VBO_elm);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_elm);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices_elm), vertices_elm, GL_STATIC_DRAW);
-    //頂点インデックスを転送 この順番にもとづき、三角形を描画
-    GLuint EBO_elm;
-    glGenBuffers(1, &EBO_elm);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_elm);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices_elm), indices_elm, GL_STATIC_DRAW);
-    //VBOの頂点情報のパッキング情報を転送
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *)0);
-    glEnableVertexAttribArray(0); //0番目のラインを有効化
-
-    glBindVertexArray(0); //VAOのUnbind
-
-
-//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    world::Circle ccl(0.1, 10);
+    world::Circle ccl1(0.1, 10);
+    world::Circle ccl2(0.1, 200);
 
 
 
@@ -136,32 +58,147 @@ int main(){
          */
         wd.ClearColor(0.1, 0.6, 0.8); //Clear color buffer
 
-        //Rebind vertex array object
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_LINE_LOOP, 0, 3);
-        glBindVertexArray(0); //Unbind
+        wd.Draw(ccl, glm::vec2(0.6, 0.0), glm::vec3(0.1, 0.3, 0.8));
+        wd.Draw(ccl, glm::vec2(0.0, 0.6), glm::vec3(0.5, 0.3, 0.1));
+        wd.Draw(ccl, glm::vec2(0.0, -0.6), glm::vec3(0.1, 0.3, 0.1));
 
-        glBindVertexArray(VAO_elm);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
 
         //Swap a frame buffer
         wd.SwapBuffers();
 
     }
 
-    // Properly de-allocate all resources once they've outlived their purpose
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-
-    glDeleteVertexArrays(1, &VAO_elm);
-    glDeleteBuffers(1, &VBO_elm);
-    glDeleteBuffers(1, &EBO_elm);
-
-
-    glDeleteProgram(program_id);
 
 }
+
+
+//int main(){
+//
+//    world::Window wd(640, 480, "hello glfw");
+//
+////    GLfloat vertices[] = {
+////            -0.5f, -0.5f, 0.0f,
+////            0.5f, -0.5f, 0.0f,
+////            0.0f,  0.5f, 0.0f
+////    };
+//
+//    GLfloat vertices[] = {
+//            -0.7f, -0.7f, 0.0f,
+//            0.7f, -0.7f, 0.0f,
+//            0.0f,  0.7f, 0.0f
+//    };
+//
+//
+//    GLfloat vertices_elm[] = {
+//            0.5f,  0.5f, 0.0f,  // Top Right
+//            0.5f, -0.5f, 0.0f,  // Bottom Right
+//            -0.5f, -0.5f, 0.0f,  // Bottom Left
+//            -0.5f,  0.5f, 0.0f   // Top Left
+//    };
+//    GLuint indices_elm[] = {  // Note that we start from 0!
+//            0, 1, 3,   // First Triangle
+//            1, 2, 3    // Second Triangle
+//    };
+//
+//
+//
+//    //Load Shader
+//    // Create and compile our GLSL program from the shaders
+//    const std::string shader_prefix = SHADER_PREFIX; //SHADER_PREFIX is defined by cmake
+//    const std::string vertex_shader = "t1_vs.glsl";
+//    const std::string fragment_shader = "t1_fs.glsl";
+//    GLuint program_id = LoadShaders((shader_prefix + vertex_shader).c_str(), (shader_prefix + fragment_shader).c_str());
+//    //Use shader program
+//    glUseProgram(program_id);
+//
+//
+//    //Generate vertex array object
+//    GLuint VAO;
+//    glGenVertexArrays(1, &VAO);
+//
+//    //Bind VAO
+//    glBindVertexArray(VAO);
+//
+//    //Generate vertex buffer including vertex attributes
+//    GLuint VBO;
+//    glGenBuffers(1, &VBO);
+//    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+//    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+//
+//    //Set vertex attributes pointers
+//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+//    glEnableVertexAttribArray(0);
+//
+//    //Unbind the VBO
+//    glBindBuffer(GL_ARRAY_BUFFER, 0);
+//
+//    //Unbind the VAO
+//    glBindVertexArray(0);
+//
+//
+//    //Element buffer object version
+//    GLuint VAO_elm;
+//    glGenVertexArrays(1, &VAO_elm);
+//    //Bind
+//    glBindVertexArray(VAO_elm);
+//    //普通に、indexed drawされる頂点バッファ情報を転送
+//    GLuint VBO_elm;
+//    glGenBuffers(1, &VBO_elm);
+//    glBindBuffer(GL_ARRAY_BUFFER, VBO_elm);
+//    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices_elm), vertices_elm, GL_STATIC_DRAW);
+//    //頂点インデックスを転送 この順番にもとづき、三角形を描画
+//    GLuint EBO_elm;
+//    glGenBuffers(1, &EBO_elm);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_elm);
+//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices_elm), indices_elm, GL_STATIC_DRAW);
+//    //VBOの頂点情報のパッキング情報を転送
+//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *)0);
+//    glEnableVertexAttribArray(0); //0番目のラインを有効化
+//
+//    glBindVertexArray(0); //VAOのUnbind
+//
+//
+////    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//
+//
+//
+//    while(wd.IsClose()){
+//        //Handle events
+//        wd.HandleEvent();
+//
+//        /*
+//         * Render here,
+//         */
+//        wd.ClearColor(0.1, 0.6, 0.8); //Clear color buffer
+//
+//        //Rebind vertex array object
+//        glLineWidth(2.0);
+//        glBindVertexArray(VAO);
+//        glDrawArrays(GL_LINE_LOOP, 0, 3);
+//        glBindVertexArray(0); //Unbind
+//
+//        glBindVertexArray(VAO_elm);
+//        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+//        glBindVertexArray(0);
+//
+//        //Swap a frame buffer
+//        wd.SwapBuffers();
+//
+//    }
+//
+//    // Properly de-allocate all resources once they've outlived their purpose
+//    glDeleteVertexArrays(1, &VAO);
+//    glDeleteBuffers(1, &VBO);
+//
+//    glDeleteVertexArrays(1, &VAO_elm);
+//    glDeleteBuffers(1, &VBO_elm);
+//    glDeleteBuffers(1, &EBO_elm);
+//
+//
+//    glDeleteProgram(program_id);
+//
+//}
 
 
 
