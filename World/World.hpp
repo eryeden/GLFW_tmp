@@ -29,6 +29,7 @@ namespace world{
         const unsigned int DEFAULT_WINDOW_WIDTH  = 480;
         const unsigned int DEFAULT_NO_SLICES_CIRCLE = 20;
         const double       DEFAULT_RADIUS_CIRCLE = 1.0;
+        const double       DEFAULT_CAMERA_HEIGHT = 2.0;
 
 
     };
@@ -48,6 +49,7 @@ namespace world{
                 : vao(0)
                 , vbo(0)
                 , no_vertices(0)
+                , draw_style(GL_TRIANGLES)
         {;};
 
         virtual ~GraphicsBase(){
@@ -59,11 +61,14 @@ namespace world{
         const GLuint GetVaoID() const {return vao;};
         const GLuint GetVboID() const {return vbo;};
         const GLuint GetNoVertices() const {return no_vertices;};
+        const GLuint GetDrawStyle() const {return draw_style;};
 
     protected:
         GLuint vao; // vertex array object
         GLuint vbo; // vertex array object
         GLuint no_vertices; //Number of vertices
+
+        GLuint draw_style; //描画スタイル GL_TRIANGLES とか
     };
 
     /*
@@ -95,6 +100,22 @@ namespace world{
 
     private:
 
+    };
+
+    /*
+     * 曲線描画クラス
+     * とりあえず、線の太さ忘れて、１ドットの線だけを書くことを考える。
+     * コンストラクタで直線をなす点群の座標を与えるとする
+     */
+    class Line: public GraphicsBase{
+    public:
+        Line();
+        Line(const std::vector<glm::vec2> & points_);
+
+        void UploadLine(const std::vector<glm::vec2> & points_);
+
+    private:
+        std::vector<glm::vec2> points;
     };
 
 

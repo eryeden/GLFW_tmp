@@ -42,12 +42,20 @@ int main(){
 
     world::Window wd(640, 480, "hello glfw");
 
+    auto no_p = 1000.0;
+    auto dt = 0.01;
+
+    std::vector<glm::vec2> pts; pts.resize(no_p);
+    for(int i = 0; i < (GLuint)no_p; ++i){
+        pts[i].y = ((float)i*dt) * ((float)i*dt);
+        pts[i].x = ((float)i*dt);
+    }
+
+    world::Line ln(pts);
 
     world::Circle ccl(0.1, 10);
     world::Circle ccl1(0.1, 10);
     world::Circle ccl2(0.1, 200);
-
-
 
     while(wd.IsClose()){
         //Handle events
@@ -61,7 +69,7 @@ int main(){
         wd.Draw(ccl, glm::vec2(0.6, 0.0), glm::vec3(0.1, 0.3, 0.8));
         wd.Draw(ccl, glm::vec2(0.0, 0.6), glm::vec3(0.5, 0.3, 0.1));
         wd.Draw(ccl, glm::vec2(0.0, -0.6), glm::vec3(0.1, 0.3, 0.1));
-
+        wd.Draw(ln, glm::vec2(0.0, 0.0), glm::vec3(0.9, 0.9, 0.1));
 
         //Swap a frame buffer
         wd.SwapBuffers();

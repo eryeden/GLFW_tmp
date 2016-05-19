@@ -121,7 +121,7 @@ Window::Window(unsigned int width_, unsigned int height_, const std::string & wi
      * 表示中心位置設定
      * View行列の設定
      */
-    height_camera = 2;
+    height_camera = (float)Constants::DEFAULT_CAMERA_HEIGHT;
     SetCenterPoint(glm::vec2(0, 0));
 
     /*
@@ -216,8 +216,10 @@ void Window::Draw(const GraphicsBase& graphics_base_, const glm::vec2 & p_, cons
     glUniform3fv(Color_id, 1, &color_[0]);
 
     glBindVertexArray(graphics_base_.GetVaoID());
-//    glDrawArrays(GL_LINE_LOOP, 0, graphics_base_.GetNoVertices());
-    glDrawArrays(GL_TRIANGLES, 0, graphics_base_.GetNoVertices());
+//    glDrawArrays(GL_LINE_STRIP, 0, graphics_base_.GetNoVertices());
+//    glDrawArrays(GL_TRIANGLES, 0, graphics_base_.GetNoVertices());
+    glDrawArrays(graphics_base_.GetDrawStyle(), 0, graphics_base_.GetNoVertices());
+
     glBindVertexArray(0); //Unbind
 
     return;
@@ -248,6 +250,9 @@ Circle::Circle(double radius_, unsigned int no_slices_){
 
     //頂点数の設定
     no_vertices = no_slices_;
+
+    //描画スタイルの設定
+    draw_style = GL_TRIANGLES;
 
     //円の頂点群の生成
     vector<glm::vec2> vtx; vtx.resize(no_slices_);
@@ -285,7 +290,48 @@ Circle::Circle(double radius_, unsigned int no_slices_){
 
 
 
+///*
+// * 曲線描画クラス
+// * とりあえず、線の太さ忘れて、１ドットの線だけを書くことを考える。
+// * コンストラクタで直線をなす点群の座標を与えるとする
+// */
+//class Line:GraphicsBase{
+//public:
+//    Line();
+//    Line(const std::vector<glm::vec2> & points_);
+//
+//    void UploadLine(const std::vector<glm::vec2> & points_);
+//
+//private:
+//    std::vector<glm::vec2> points;
+//};
 
+
+Line::Line() {
+
+}
+
+Line::Line(const std::vector<glm::vec2>& points_) {
+    UploadLine(points_);
+}
+
+void Line::UploadLine(const std::vector<glm::vec2>& points_) {
+    no_vertices = (GLuint)points_.size();
+    //描画スタイルの設定
+    draw_style = GL_LINE_STRIP;
+    //VAO, VBO, EBOの生成
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    //普通に、indexed drawされる頂点バッファ情報を転送
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * points_.size(), points_.data(), GL_STATIC_DRAW);
+    //VBOの頂点情報のパッキング情報を転送
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid *)0);
+    glEnableVertexAttribArray(0); //0番目のラインを有効化
+
+    glBindVertexArray(0); //VAOのUnbind
+}
 
 
 
