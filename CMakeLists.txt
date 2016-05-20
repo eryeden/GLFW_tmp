@@ -52,6 +52,16 @@ SET(GL_LIBS ${GLFW_STATIC_LIBS} ${ASSIMPS_LIBS} ${GLEW_LIBS} ${GL_PKGLIBS})
 #################################################################
 
 #################################################################
+#FreeType
+# True type font render
+SET(FREETYPE_ROOT ${PROJECT_SOURCE_DIR}/FreeType)
+SET(FREETYPE_INCLUDE ${FREETYPE_ROOT})
+SET(FREETYPE_LIB ${FREETYPE_ROOT}/libfreetype.a)
+
+
+#################################################################
+
+#################################################################
 #OpenGL
 #SET(GL_INCLUDE ${PROJECT_SOURCE_DIR}/OpenGL/include)
 SET(GL_INCLUDE ${GLFW_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS} ${ASSIMP_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS})
