@@ -179,7 +179,7 @@ Window::Window(unsigned int width_, unsigned int height_, const std::string & wi
     P = glm::perspective(glm::radians(45.0f), (float)frame_width / (float)frame_height, 0.1f, 100.0f);
 //    P_ortho = glm::ortho(-(float)frame_width * 0.5, (float)frame_width * 0.5, -(float)frame_height * 0.5, (float)frame_height * 0.5);
     P_ortho = glm::ortho(-1.0 * r, 1.0 * r, -1.0, 1.0);
-    P_text = glm::ortho(0, (float)frame_width, 0, (float)frame_height);
+    P_text = glm::ortho((float)0.0, (float)frame_width, (float)0.0, (float)frame_height);
 
 }
 
@@ -207,7 +207,7 @@ void Window::HandleEvent(){
     P = glm::perspective(glm::radians(45.0f), (float)frame_width / (float)frame_height, 0.1f, 100.0f);
 //    P_ortho = glm::ortho(-(float)frame_width * 0.5, (float)frame_width * 0.5, -(float)frame_height * 0.5, (float)frame_height * 0.5);
     P_ortho = glm::ortho(-1.0 * r, 1.0 * r, -1.0, 1.0);
-    P_text = glm::ortho(0, (float)frame_width, 0, (float)frame_height);
+    P_text = glm::ortho((float)0.0, (float)frame_width, (float)0.0, (float)frame_height);
     glfwPollEvents();
 }
 

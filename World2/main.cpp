@@ -57,8 +57,19 @@ int main(){
 
     FT_Set_Pixel_Sizes(face, 0, 48);
 
+    //Load Shader
+    //For Text Render
+    const std::string shader_prefix = SHADER_PREFIX; //SHADER_PREFIX is defined by cmake
+    const std::string vertex_shader_text = "Text_vs.glsl";
+    const std::string fragment_shader_text = "Text_fs.glsl";
+    GLuint text_program_id = LoadShaders((shader_prefix + vertex_shader_text).c_str(), (shader_prefix + fragment_shader_text).c_str());
+    glUseProgram(text_program_id);
+
+
+
 
     world::Window wd(640, 480, "hello glfw");
+    wd.SetCenterPoint(glm::vec2(0.0, 0.0));
 
     auto no_p = 1000.0;
     auto dt = 0.01;
@@ -93,8 +104,8 @@ int main(){
     world::Circle ccl2(0.1, 200);
 
     double i = 0;
-    double maxi = 0.1;
-    double di = 0.0005;
+    double maxi = 0.05;
+    double di = 0.0001;
 
 
     while(wd.IsClose()){
