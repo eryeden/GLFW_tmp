@@ -33,8 +33,13 @@ namespace world{
         const unsigned int DEFAULT_NO_SLICES_CIRCLE = 20;
         const double       DEFAULT_RADIUS_CIRCLE = 1.0;
         const double       DEFAULT_CAMERA_HEIGHT = 2.0;
-        const GLuint DEFAULT_SHADER = 0;
+
+        const GLuint DEFAULT_SHADER      = 0;
         const GLuint DEFAULT_SHADER_LINE = 1;
+        const GLuint DEFAULT_SHADER_TEST = 2;
+
+        const double DEFAULT_LINE_THICKNESS = 0.01; // デフォルトの線の長さ
+
 
     };
 
@@ -130,20 +135,36 @@ namespace world{
     public:
         Line();
         Line(const std::vector<glm::vec2> & points_);
+        Line(const std::vector<glm::vec2> & points_, double thickness_);
 
         void UploadLine(const std::vector<glm::vec2> & points_);
+        const double GetLineThickness() const {return line_thickness;};
+        void SetLineThickness(double thickness_){line_thickness = thickness_;};
 
     private:
         std::vector<glm::vec2> points;
+        double line_thickness;
     };
 
     /*
      * 点の描画
      */
     class Points: public GraphicsBase{
+    public:
 
+        Points();
+        Points(const std::vector<glm::vec2> & points_);
 
+        void UploadPoints(const std::vector<glm::vec2> & points_);
+
+    private:
+        std::vector<glm::vec2> PointsArray;
     };
+
+
+
+
+
 
     class  Window{
 
@@ -184,6 +205,8 @@ namespace world{
          */
         void Draw(const GraphicsBase& graphics_base_, double px_, double py_, double r_, double g_, double b_);
         void Draw(const GraphicsBase& graphics_base_, const glm::vec2 & p_, const glm::vec3 & color_);
+        void Draw(const Line& line_, const glm::vec2 & p_, const glm::vec3 & color_, double thickness_);
+
 
         //Event handler, static function must be public
         static void key_callback(GLFWwindow* window_, int key_, int scancode_, int action_, int mode_);
@@ -209,12 +232,25 @@ namespace world{
         GLuint program_id;
         //ジオメトリシェーダを含むID
         GLuint geom_program_id;
+        //テストシェーダID
+        GLuint test_program_id;
+        //太線描画用シェーダID
+        GLuint line_program_id;
+
+
 
         GLint MVP_id; //ユニフォームID：MVP
         GLint Color_id; //カラーユニフォームID
 
         GLint geom_MVP_id; //ユニフォームID：MVP
         GLint geom_Color_id; //カラーユニフォームID
+        //実験用シェーダ用
+        GLint test_MVP_id;
+        GLint test_Color_id;
+        //LINE描画向けシェーダ用
+        GLint line_MVP_id;
+        GLint line_Color_id;
+        GLint line_thickness_id;
 
 
     };

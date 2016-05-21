@@ -113,11 +113,31 @@ Window::Window(unsigned int width_, unsigned int height_, const std::string & wi
 
     // Load shader with Geometry shader
     const std::string vertex_shader2 = "t3_vs.glsl";
-    const std::string geometry_shader2 = "t3_gs.glsl";
+    const std::string geometry_shader2 = "t32_gs.glsl";
     const std::string fragment_shader2 = "t3_fs.glsl";
     geom_program_id = geomLoadShaders((shader_prefix + vertex_shader2), (shader_prefix + fragment_shader2), (shader_prefix + geometry_shader2));
     //Use shader program
     glUseProgram(geom_program_id);
+
+    // Load shader with Geometry shader
+    const std::string vertex_shader3 = "t3_vs.glsl";
+    const std::string geometry_shader3 = "t31_gs.glsl";
+    const std::string fragment_shader3 = "t3_fs.glsl";
+    test_program_id = geomLoadShaders((shader_prefix + vertex_shader3), (shader_prefix + fragment_shader3), (shader_prefix + geometry_shader3));
+    //Use shader program
+    glUseProgram(test_program_id);
+
+    // Load shader with Geometry shader
+    const std::string vertex_shader_line = "tLine_vs.glsl";
+    const std::string geometry_shader_line = "tLine_gs.glsl";
+    const std::string fragment_shader_line = "tLine_fs.glsl";
+    line_program_id = geomLoadShaders((shader_prefix + vertex_shader_line)
+            , (shader_prefix + fragment_shader_line)
+            , (shader_prefix + geometry_shader_line)
+    );
+    //Use shader program
+    glUseProgram(line_program_id);
+
 
 
     /*
@@ -128,6 +148,13 @@ Window::Window(unsigned int width_, unsigned int height_, const std::string & wi
 
     geom_MVP_id = glGetUniformLocation(geom_program_id, "MVP");
     geom_Color_id = glGetUniformLocation(geom_program_id, "Color");
+
+    test_MVP_id = glGetUniformLocation(test_program_id, "MVP");
+    test_Color_id = glGetUniformLocation(test_program_id, "Color");
+
+    line_MVP_id = glGetUniformLocation(line_program_id, "MVP");
+    line_Color_id = glGetUniformLocation(line_program_id, "Color");
+    line_thickness_id = glGetUniformLocation(line_program_id, "Thickness"); //線の太さ
 
     /*
      * 表示中心位置設定
@@ -142,7 +169,6 @@ Window::Window(unsigned int width_, unsigned int height_, const std::string & wi
      */
     P = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
 
-
 }
 
 //デストラクタ
@@ -150,6 +176,10 @@ Window::~Window(){
 
     //シェーダの破棄
     glDeleteProgram(program_id);
+    glDeleteProgram(geom_program_id);
+    glDeleteProgram(test_program_id);
+    glDeleteProgram(line_program_id);
+
     glfwTerminate();
 }
 
@@ -218,6 +248,11 @@ void Window::SetCenterPoint(const glm::vec2 & p_){
  * Graphics Base からVAOを読み、
  * 中心座標、色の設定を行って描画する
  */
+
+void Window::Draw(const GraphicsBase& graphics_base_, double px_, double py_, double r_, double g_, double b_){
+    Draw(graphics_base_, glm::vec2(px_, py_), glm::vec3(r_, g_, b_));
+}
+
 void Window::Draw(const GraphicsBase& graphics_base_, const glm::vec2 & p_, const glm::vec3 & color_){
     glm::vec3 pos(p_.x, p_.y, 0);
     glm::mat4 M = glm::translate(pos);
@@ -232,11 +267,21 @@ void Window::Draw(const GraphicsBase& graphics_base_, const glm::vec2 & p_, cons
         glUniform3fv(Color_id, 1, &color_[0]);
     }else if(graphics_base_.GetShaderMode() == Constants::DEFAULT_SHADER_LINE){
         //シェーダを設定
-        glUseProgram(geom_program_id);
+        glUseProgram(line_program_id);
 
         //シェーダにMVPとColorを渡す
-        glUniformMatrix4fv(geom_MVP_id, 1, GL_FALSE, &MVP[0][0]);
-        glUniform3fv(geom_Color_id, 1, &color_[0]);
+        glUniformMatrix4fv(line_MVP_id, 1, GL_FALSE, &MVP[0][0]);
+        glUniform3fv(line_Color_id, 1, &color_[0]);
+        //描画の度、DynamicCastなので設計変更？ Dynamic cast ではconst かどうかも見るので注意
+        glUniform1f(line_thickness_id, (float)(dynamic_cast<const Line &>(graphics_base_)).GetLineThickness());
+
+    }else if(graphics_base_.GetShaderMode() == Constants::DEFAULT_SHADER_TEST){
+        //テストシェーダを設定
+        glUseProgram(test_program_id);
+
+        //シェーダにMVPとColorを渡す
+        glUniformMatrix4fv(test_MVP_id, 1, GL_FALSE, &MVP[0][0]);
+        glUniform3fv(test_Color_id, 1, &color_[0]);
     }
 
     //シェーダにMVPとColorを渡す
@@ -252,125 +297,26 @@ void Window::Draw(const GraphicsBase& graphics_base_, const glm::vec2 & p_, cons
 
     return;
 }
-void Window::Draw(const GraphicsBase& graphics_base_, double px_, double py_, double r_, double g_, double b_){
-    Draw(graphics_base_, glm::vec2(px_, py_), glm::vec3(r_, g_, b_));
+
+void Window::Draw(const Line& line_, const glm::vec2 & p_, const glm::vec3 & color_, double thickness_){
+    glm::vec3 pos(p_.x, p_.y, 0);
+    glm::mat4 M = glm::translate(pos);
+    MVP = P * V * M; //MVPの生成
+
+    //シェーダを設定
+    glUseProgram(line_program_id);
+
+    //シェーダにMVPとColorを渡す
+    glUniformMatrix4fv(line_MVP_id, 1, GL_FALSE, &MVP[0][0]);
+    glUniform3fv(line_Color_id, 1, &color_[0]);
+    glUniform1f(line_thickness_id, (float)thickness_);
+
+    glBindVertexArray(line_.GetVaoID());
+    glDrawArrays(line_.GetDrawStyle(), 0, line_.GetNoVertices());
+    glBindVertexArray(0); //Unbind
+
+    return;
 }
-
-
-//円描画
-Circle::Circle()
-        : Circle(Constants::DEFAULT_RADIUS_CIRCLE, Constants::DEFAULT_NO_SLICES_CIRCLE)
-{
-    ;
-}
-
-Circle::Circle(double radius_)
-        : Circle(radius_, Constants::DEFAULT_NO_SLICES_CIRCLE)
-{
-    ;
-}
-
-
-/*
- * コンストラクタにおいて、円の頂点群を生成し、このときのVAOを保存しておく
- */
-Circle::Circle(double radius_, unsigned int no_slices_){
-
-    //頂点数の設定
-    no_vertices = no_slices_;
-
-    //描画スタイルの設定
-    draw_style = GL_TRIANGLES;
-
-    //円の頂点群の生成
-    vector<glm::vec2> vtx; vtx.resize(no_slices_);
-    double dtheta = 2.0 * M_PI / (double)no_slices_;
-
-    //三角形群の生成
-    vector<glm::vec2> vtxs;
-    for(unsigned int i = 0; i < no_slices_; ++i){
-
-        vtxs.push_back(glm::vec2(
-                (float)(radius_ * cos(dtheta * (double)i))
-                , (float)(radius_ * sin(dtheta * (double)i))
-        ));
-        vtxs.push_back(glm::vec2(0,0));
-        vtxs.push_back(glm::vec2(
-                (float)(radius_ * cos(dtheta * (double)(i+1)))
-                , (float)(radius_ * sin(dtheta * (double)(i+1)))
-        ));
-    }
-    no_vertices = (GLuint)vtxs.size();
-
-    //VAO, VBO, EBOの生成
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-    //普通に、indexed drawされる頂点バッファ情報を転送
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * vtxs.size(), vtxs.data(), GL_STATIC_DRAW);
-    //VBOの頂点情報のパッキング情報を転送
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid *)0);
-    glEnableVertexAttribArray(0); //0番目のラインを有効化
-
-    glBindVertexArray(0); //VAOのUnbind
-}
-
-
-
-///*
-// * 曲線描画クラス
-// * とりあえず、線の太さ忘れて、１ドットの線だけを書くことを考える。
-// * コンストラクタで直線をなす点群の座標を与えるとする
-// */
-//class Line:GraphicsBase{
-//public:
-//    Line();
-//    Line(const std::vector<glm::vec2> & points_);
-//
-//    void UploadLine(const std::vector<glm::vec2> & points_);
-//
-//private:
-//    std::vector<glm::vec2> points;
-//};
-
-
-Line::Line() {
-
-}
-
-Line::Line(const std::vector<glm::vec2>& points_) {
-    UploadLine(points_);
-}
-
-void Line::UploadLine(const std::vector<glm::vec2>& points_) {
-    no_vertices = (GLuint)points_.size();
-
-    //描画スタイルの設定
-//    draw_style = GL_LINE_STRIP;
-
-    //描画スタイルの設定 これでも問題なく描画される geometry shaderを使う場合は、線の頂点近傍情報がほしいのでこれにするといい
-    draw_style = GL_LINE_STRIP_ADJACENCY;
-
-    //シェーダスタイルの設定
-    shader_mode = Constants::DEFAULT_SHADER_LINE;
-
-
-    //VAO, VBO, EBOの生成
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-    //普通に、indexed drawされる頂点バッファ情報を転送
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * points_.size(), points_.data(), GL_STATIC_DRAW);
-    //VBOの頂点情報のパッキング情報を転送
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid *)0);
-    glEnableVertexAttribArray(0); //0番目のラインを有効化
-
-    glBindVertexArray(0); //VAOのUnbind
-}
-
-
 
 
 

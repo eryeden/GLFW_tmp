@@ -13,18 +13,20 @@
 
 出力するプリミティブは三角形が二個なので、頂点数は合計６個
 
-
-ここではとりあえず、テストのために生成する頂点位置に、点を書いてみる
-なので、出力プリミティブはpointsになる
 三角形プリミティブの出力は不要なので、出力頂点数は4個
 W要素の代入でうまく表示されるようになった
+
+線の太さはUniformで与えることにする
 
 */
 
 
 layout (lines_adjacency) in;
-layout (points, max_vertices = 4) out;
-//layout (triangle_strip, max_vertices = 3) out;
+layout (triangle_strip, max_vertices = 6) out;
+
+
+//線の太さ
+uniform float Thickness;
 
 // Vshaderからの色情報パイプ
 in VS_OUT {
@@ -36,10 +38,6 @@ out vec3 Fragment_color;
 void main() {
     //Fshaderに色を伝える　この場合、複数の頂点入力があるため、色は０番めのものとする
     Fragment_color = gs_in[0].Fragment_color;
-
-//    gl_Position = gl_in[0].gl_Position;
-//    EmitVertex();
-//    EndPrimitive();
 
     float w = gl_in[0].gl_Position.w;
 
@@ -62,27 +60,31 @@ void main() {
     vec2 n12 = normalize(n1 + n2);
     vec2 n23 = normalize(n2 + n3);
 
-    float d = 0.1;
+    float d = Thickness;
 
     vec2 p1 = a2 + n12 * d;
     vec2 p2 = a2 - n12 * d;
-    vec2 p3 = a3 + n23 * d;
-    vec2 p4 = a3 - n23 * d;
+    vec2 p3 = a3 - n23 * d;
+    vec2 p4 = a3 + n23 * d;
 
+    //三角形の頂点を指定し、三角形プリミティブを生成する
     gl_Position = vec4(p1, 0, w);
     EmitVertex();
-    EndPrimitive();
-
     gl_Position = vec4(p2, 0, w);
     EmitVertex();
-    EndPrimitive();
-
-    gl_Position = vec4(p3, 0, w);
-    EmitVertex();
-    EndPrimitive();
-
     gl_Position = vec4(p4, 0, w);
     EmitVertex();
     EndPrimitive();
 
+    //２つめの三角形
+    gl_Position = vec4(p2, 0, w);
+    EmitVertex();
+    gl_Position = vec4(p3, 0, w);
+    EmitVertex();
+    gl_Position = vec4(p4, 0, w);
+    EmitVertex();
+    EndPrimitive();
 }
+
+
+

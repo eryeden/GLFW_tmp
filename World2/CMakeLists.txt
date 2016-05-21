@@ -5,7 +5,7 @@ set(BN "World2")
 
 add_definitions(-DSHADER_PREFIX="${PROJECT_SOURCE_DIR}/GLSL/")
 
-set(SOURCE_FILES main.cpp ${COMMON_SRCS} World.cpp)
+set(SOURCE_FILES main.cpp ${COMMON_SRCS} World.cpp GraphicsBase.cpp)
 add_executable(${BN} ${SOURCE_FILES})
 
 target_link_libraries(${BN} ${GL_LIBS})
