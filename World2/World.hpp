@@ -224,6 +224,7 @@ namespace world{
         glm::mat4 MVP;
         glm::mat4 V;
         glm::mat4 P;
+        glm::mat4 P_ortho;
 
         //カメラ高さ
         GLfloat height_camera;

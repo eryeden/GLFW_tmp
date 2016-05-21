@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <map>
 #include <string>
 
 // Include GLEW
@@ -14,8 +15,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 
-#include "shader.hpp"
+//Free type
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
+#include "shader.hpp"
 #include "World.hpp"
 
 
@@ -39,6 +43,20 @@
 
 
 int main(){
+
+    //Initialize Free Type
+    FT_Library ft;
+    if (FT_Init_FreeType(&ft))
+        std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+
+    std::string font_dir_prefix = FONTS_DIR_PREFIX; //Defined in CMakeLists.txt
+    std::string font_path = "arial.ttf";
+    FT_Face face;
+    if (FT_New_Face(ft, (font_dir_prefix + font_path).c_str(), 0, &face))
+        std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+
+    FT_Set_Pixel_Sizes(face, 0, 48);
+
 
     world::Window wd(640, 480, "hello glfw");
 

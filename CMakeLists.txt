@@ -54,10 +54,11 @@ SET(GL_LIBS ${GLFW_STATIC_LIBS} ${ASSIMPS_LIBS} ${GLEW_LIBS} ${GL_PKGLIBS})
 #################################################################
 #FreeType
 # True type font render
-SET(FREETYPE_ROOT ${PROJECT_SOURCE_DIR}/FreeType)
-SET(FREETYPE_INCLUDE ${FREETYPE_ROOT})
-SET(FREETYPE_LIB ${FREETYPE_ROOT}/libfreetype.a)
+#find_package(Freetype REQUIRED)
 
+set(FREETYPE_ROOT ${PROJECT_SOURCE_DIR}/FreeType)
+set(FREETYPE_INCLUDE ${FREETYPE_ROOT}/freetype)
+set(FREETYPE_LIB ${FREETYPE_ROOT}/libfreetype.dylib) # Should be linked
 
 #################################################################
 
@@ -83,7 +84,9 @@ INCLUDE_DIRECTORIES(
         ${GL_INCLUDE}
         ${TOOLS_INCLUDE}
         ${COMMON_INCLUDE}
+        ${FREETYPE_INCLUDE}
 )
+
 message(${GL_INCLUDE})
 #################################################################
 

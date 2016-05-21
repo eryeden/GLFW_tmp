@@ -90,9 +90,9 @@ Window::Window(unsigned int width_, unsigned int height_, const std::string & wi
     glfwSetKeyCallback(window, key_callback);
 
     //OopeGL view port configuration
-    int frame_width, frame_height;
-    glfwGetFramebufferSize(window, &frame_width, &frame_height);
-    glViewport(0, 0, frame_width, frame_height);
+//    int frame_width, frame_height;
+//    glfwGetFramebufferSize(window, &frame_width, &frame_height);
+//    glViewport(0, 0, frame_width, frame_height);
 
     //Enable Depth test
     glEnable(GL_DEPTH_TEST);
@@ -138,8 +138,6 @@ Window::Window(unsigned int width_, unsigned int height_, const std::string & wi
     //Use shader program
     glUseProgram(line_program_id);
 
-
-
     /*
      * ユニフォームIDの取得
      */
@@ -163,11 +161,15 @@ Window::Window(unsigned int width_, unsigned int height_, const std::string & wi
     height_camera = (float)Constants::DEFAULT_CAMERA_HEIGHT;
     SetCenterPoint(glm::vec2(0, 0));
 
+
     /*
      * プロジェクション行列の設定
-     * 射影行列：45&deg;の視界、アスペクト比4:3、表示範囲：0.1単位  100単位
      */
-    P = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
+    int frame_width, frame_height;
+    glfwGetFramebufferSize(window, &frame_width, &frame_height);
+    //glViewport(0, 0, frame_width, frame_height);
+    P = glm::perspective(glm::radians(45.0f), (float)frame_width / (float)frame_height, 0.1f, 100.0f);
+    P_ortho = glm::ortho(0.0f, (float)frame_width, 0.0f, (float)frame_height);
 
 }
 
@@ -188,6 +190,10 @@ bool Window::IsClose() {
 }
 
 void Window::HandleEvent(){
+    int frame_width, frame_height;
+    glfwGetFramebufferSize(window, &frame_width, &frame_height);
+    P = glm::perspective(glm::radians(45.0f), (float)frame_width / (float)frame_height, 0.1f, 100.0f);
+    P_ortho = glm::ortho(0.0f, (float)frame_width, 0.0f, (float)frame_height);
     glfwPollEvents();
 }
 
