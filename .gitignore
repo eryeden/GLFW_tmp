@@ -1,5 +1,5 @@
 # Object files
-*.o
+#*.o
 *.ko
 *.obj
 *.elf
@@ -10,15 +10,15 @@
 
 # Libraries
 #*.lib
-*.a
+#*.a
 *.la
 *.lo
 
 # Shared objects (inc. Windows DLLs)
 #*.dll
-*.so
-*.so.*
-*.dylib
+#*.so
+#*.so.*
+#*.dylib
 
 # Executables
 *.exe
