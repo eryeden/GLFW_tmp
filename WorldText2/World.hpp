@@ -196,7 +196,6 @@ namespace world{
 
         std::map<GLchar, Character> Characters;
 
-
     };
 
 

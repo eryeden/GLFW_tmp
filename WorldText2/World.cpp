@@ -20,6 +20,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 
 #include "World.hpp"
 #include "shader.hpp"
@@ -100,9 +102,12 @@ Window::Window(unsigned int width_, unsigned int height_, const std::string & wi
     glDepthFunc(GL_LESS);
 
     // Set OpenGL options
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // Disable byte-alignment restriction
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     /*
      * シェーダロード
@@ -149,7 +154,7 @@ Window::Window(unsigned int width_, unsigned int height_, const std::string & wi
     font_program_id = LoadShaders((shader_prefix + vertex_shader_font).c_str()
             , (shader_prefix + fragment_shader_font).c_str()
     );
-//    glUseProgram(font_program_id);
+    glUseProgram(font_program_id);
 
 
     /*
@@ -169,8 +174,8 @@ Window::Window(unsigned int width_, unsigned int height_, const std::string & wi
     line_thickness_id = glGetUniformLocation(line_program_id, "Thickness"); //線の太さ
 
     //フォントレンダリング用
-    font_P = glGetUniformLocation(font_program_id, "projection");
-    font_TextColor = glGetUniformLocation(font_program_id, "textColor");;
+    font_P = glGetUniformLocation(font_program_id, "projection;");
+    font_TextColor = glGetUniformLocation(font_program_id, "textColor");
 
 
     /*
@@ -185,9 +190,9 @@ Window::Window(unsigned int width_, unsigned int height_, const std::string & wi
      * プロジェクション行列の設定
      */
     int frame_width, frame_height;
-    glfwGetWindowSize(window, &frame_width, &frame_height);
+    glfwGetFramebufferSize(window, &frame_width, &frame_height);
     float r = (float)frame_width / (float)frame_height;
-//    glViewport(0, 0, frame_width, frame_height);
+    glViewport(0, 0, frame_width, frame_height);
     P = glm::perspective(glm::radians(45.0f), (float)frame_width / (float)frame_height, 0.1f, 100.0f);
 //    P_ortho = glm::ortho(-(float)frame_width * 0.5, (float)frame_width * 0.5, -(float)frame_height * 0.5, (float)frame_height * 0.5);
     P_ortho = glm::ortho(-1.0 * r, 1.0 * r, -1.0, 1.0);
@@ -203,7 +208,6 @@ Window::~Window(){
     glDeleteProgram(geom_program_id);
     glDeleteProgram(test_program_id);
     glDeleteProgram(line_program_id);
-    glDeleteProgram(font_program_id);
 
     glfwTerminate();
 }
@@ -214,15 +218,13 @@ bool Window::IsClose() {
 
 void Window::HandleEvent(){
     int frame_width, frame_height;
-    glfwGetWindowSize(window, &frame_width, &frame_height);
+    glfwGetFramebufferSize(window, &frame_width, &frame_height);
     float r = (float)frame_width / (float)frame_height;
-    //glViewport(0, 0, frame_width, frame_height);
+    glViewport(0, 0, frame_width, frame_height);
     P = glm::perspective(glm::radians(45.0f), (float)frame_width / (float)frame_height, 0.1f, 100.0f);
 //    P_ortho = glm::ortho(-(float)frame_width * 0.5, (float)frame_width * 0.5, -(float)frame_height * 0.5, (float)frame_height * 0.5);
     P_ortho = glm::ortho(-1.0 * r, 1.0 * r, -1.0, 1.0);
     P_text = glm::ortho((float)0.0, (float)frame_width, (float)0.0, (float)frame_height);
-
-
     glfwPollEvents();
 }
 
@@ -354,15 +356,16 @@ void Window::Draw(const Line& line_, const glm::vec2 & p_, const glm::vec3 & col
     return;
 }
 
-void Window::Draw(Text& text_
+void Window::Draw(Text & text_
         , const glm::vec2 & p_
         , const glm::vec3 & color_
         , const std::string & txt_
         , double scale_) {
 
-    glUseProgram(font_program_id);
-    glUniformMatrix4fv(font_P, 1, GL_FALSE, &P_text[0][0]);
+    glUniformMatrix4fv(font_P, 1, GL_FALSE, glm::value_ptr(P_text));
     text_.Render(font_program_id, txt_, p_, static_cast<float>(scale_), color_);
+
+
 }
 
 

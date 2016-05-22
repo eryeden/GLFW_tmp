@@ -241,9 +241,6 @@ Text::Text(const std::string & path_to_ttf_, unsigned int font_loading_size_) {
 
     FT_Set_Pixel_Sizes(face, 0, font_loading_size_);
 
-    // Disable byte-alignment restriction
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
     // Load first 128 characters of ASCII set
     //アスキー文字分のフォントを読み込む
     for (GLubyte c = 0; c < 128; c++)
@@ -316,22 +313,22 @@ void Text::Render(GLuint program_id_
         , const std::string &text_
         , const glm::vec2 &point_
         , GLfloat scale_
-        , const glm::vec3 &color_) {
+        , const glm::vec3 &color_){
 
     glm::vec2 p = point_;
 
     // Activate corresponding render state
-    //glUseProgram(program_id_);
+    glUseProgram(program_id_);
     glUniform3f(glGetUniformLocation(program_id_, "textColor")
             , color_.x, color_.y, color_.z);
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(vao);
 
     // Iterate through all characters
-    std::string::const_iterator c;
-    for (c = text_.begin(); c != text_.end(); c++)
+//    std::string::const_iterator c;
+    for (auto c = text_.begin(); c != text_.end(); c++)
     {
-        Character ch = Characters[*c];
+        Character ch = Characters[(*c)];
 
         GLfloat xpos = p.x + ch.Bearing.x * scale_;
         GLfloat ypos = p.y - (ch.Size.y - ch.Bearing.y) * scale_;
