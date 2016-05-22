@@ -151,14 +151,6 @@ Window::Window(unsigned int width_, unsigned int height_, const std::string & wi
     //Use shader program
 //    glUseProgram(line_program_id);
 
-    // Load shader with Geometry shader
-    const std::string vertex_shader_font = "Text_vs.glsl";
-    const std::string fragment_shader_font = "Text_fs.glsl";
-    font_program_id = LoadShaders((shader_prefix + vertex_shader_font).c_str()
-            , (shader_prefix + fragment_shader_font).c_str()
-    );
-//    glUseProgram(font_program_id);
-
 
     /*
      * ユニフォームIDの取得
@@ -175,11 +167,6 @@ Window::Window(unsigned int width_, unsigned int height_, const std::string & wi
     line_MVP_id = glGetUniformLocation(line_program_id, "MVP");
     line_Color_id = glGetUniformLocation(line_program_id, "Color");
     line_thickness_id = glGetUniformLocation(line_program_id, "Thickness"); //線の太さ
-
-    //フォントレンダリング用
-    font_P = glGetUniformLocation(font_program_id, "projection");
-    font_TextColor = glGetUniformLocation(font_program_id, "textColor");;
-
 
     /*
      * 表示中心位置設定
@@ -211,7 +198,6 @@ Window::~Window(){
     glDeleteProgram(geom_program_id);
     glDeleteProgram(test_program_id);
     glDeleteProgram(line_program_id);
-    glDeleteProgram(font_program_id);
 
     glfwTerminate();
 }
@@ -364,25 +350,6 @@ void Window::Draw(const Line& line_, const glm::vec2 & p_, const glm::vec3 & col
     return;
 }
 
-void Window::Draw(Text& text_
-        , const glm::vec2 & p_
-        , const glm::vec3 & color_
-        , const std::string & txt_
-        , double scale_) {
-
-    int frame_width, frame_height;
-    glfwGetWindowSize(window, &frame_width, &frame_height);
-    P_text = glm::ortho((float)0.0, (float)frame_width, (float)0.0, (float)frame_height);
-
-    glUseProgram(text_.GetProgramID());
-
-    glUniformMatrix4fv(glGetUniformLocation(text_.GetProgramID(), "projection")
-            , 1, GL_FALSE, glm::value_ptr(P_text));
-    glUniform3f(glGetUniformLocation(text_.GetProgramID(), "textColor"), color_.x, color_.y, color_.z);
-    text_.RenderText(txt_, p_.x, p_.y, static_cast<float>(scale_));
-}
-
-
 //フレームバッファの保存を行う
 void Window::CaptureFrame() {
     glm::i32vec2 w_size = GetFrameBufferSize(); //ここでWindowサイズを取ると領域が足りない
@@ -423,8 +390,8 @@ void Window::CaptureFrame() {
 //        file.write(reinterpret_cast<const char*>(&image_buf[((w_size.y - y - 1) * w_size.x) * 3]), w_size.x * 3);
 //    }
 
-    //反転した画像をまとめて書き込み
-    file.write(reinterpret_cast<const char *>(out_buf), w_size.x * w_size.y * 3); //上下反転してしまう
+    //反転した画像をまとめて書き込み これが一番早い
+    file.write(reinterpret_cast<const char *>(out_buf), w_size.x * w_size.y * 3);
 
 
     file.close();

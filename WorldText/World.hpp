@@ -170,40 +170,6 @@ namespace world{
         std::vector<glm::vec2> PointsArray;
     };
 
-
-
-
-    /*
-     * フォントレンダリング用
-     */
-    class Text: public GraphicsBase{
-    public:
-
-        Text();
-        Text(const std::string & path_to_ttf_);
-        Text(const std::string & path_to_ttf_, unsigned int font_load_size_);
-
-        const GLuint GetProgramID() const {return text_program_id;};
-
-        void RenderText(std::string text, GLfloat x, GLfloat y, GLfloat scale);
-
-    private:
-
-        /// Holds all state information relevant to a character as loaded using FreeType
-        struct Character {
-            GLuint TextureID;   // ID handle of the glyph texture
-            glm::ivec2 Size;    // Size of glyph
-            glm::ivec2 Bearing;  // Offset from baseline to left/top of glyph
-            GLuint Advance;    // Horizontal offset to advance to next glyph
-        };
-
-        std::map<GLchar, Character> Characters;
-
-        GLuint text_program_id;
-
-    };
-
-
     class  Window{
 
     public:
@@ -218,8 +184,8 @@ namespace world{
         void HandleEvent(); //諸々イベントを処理
         void SwapBuffers(); //スワップバッファ
 
-        void EnbaleImageCapturing() {is_capture_frame = true;};
-        void DisableImageCapturing() {is_capture_frame = false;};
+        void EnableFrameCapturing() {is_capture_frame = true;};
+        void DisableFrameCapturing() {is_capture_frame = false;};
 
         //いずれ消す
         const GLFWwindow * GetWindowContext();
@@ -238,10 +204,6 @@ namespace world{
         void ClearColor(double r_, double g_, double b_); //画面クリア 色指定
         void ClearColor(const glm::vec3 & color_); //画面クリア 色指定
 
-
-//        void DrawCircle(double r_, double px_, double py_, double r_, double g_, double b_); //丸描画
-//        void DrawCircle(const glm::vec3 & p_, const glm::vec3 & color_); //丸描画
-
         /*
          * Graphics Base からVAOを読み、
          * 中心座標、色の設定を行って描画する
@@ -249,12 +211,6 @@ namespace world{
         void Draw(const GraphicsBase& graphics_base_, double px_, double py_, double r_, double g_, double b_);
         void Draw(const GraphicsBase& graphics_base_, const glm::vec2 & p_, const glm::vec3 & color_);
         void Draw(const Line& line_, const glm::vec2 & p_, const glm::vec3 & color_, double thickness_);
-        void Draw(Text& text_
-                , const glm::vec2 & p_
-                , const glm::vec3 & color_
-                , const std::string & txt_
-                , double scale_);
-
 
         //Event handler, static function must be public
         static void key_callback(GLFWwindow* window_, int key_, int scancode_, int action_, int mode_);
@@ -290,9 +246,6 @@ namespace world{
         GLuint test_program_id;
         //太線描画用シェーダID
         GLuint line_program_id;
-        //フォントレンダリング用
-        GLuint font_program_id;
-
 
 
         GLint MVP_id; //ユニフォームID：MVP
@@ -307,9 +260,6 @@ namespace world{
         GLint line_MVP_id;
         GLint line_Color_id;
         GLint line_thickness_id;
-        //フォントレンダリング用
-        GLint font_P;
-        GLint font_TextColor;
 
 
         //フレームバッファを読んで保存する
@@ -320,12 +270,12 @@ namespace world{
     };
 
 
-    class TextUtil: public GraphicsBase{
+    class Text: public GraphicsBase{
     public:
 
-        TextUtil(const Window & window_);
-        TextUtil(const Window & window_, const std::string & path_to_ttf_);
-        TextUtil(const Window & window_, const std::string & path_to_ttf_, unsigned int font_load_size_);
+        Text(const Window & window_);
+        Text(const Window & window_, const std::string & path_to_ttf_);
+        Text(const Window & window_, const std::string & path_to_ttf_, unsigned int font_load_size_);
 
         void RenderText(const std::string & text, const glm::vec2 & point_, const glm::vec3 & color_, GLfloat scale_);
 

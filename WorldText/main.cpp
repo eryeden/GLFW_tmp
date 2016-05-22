@@ -33,7 +33,7 @@ public:
         window = window_;
 
         int frame_width, frame_height, w_width, w_height;
-        glfwGetFramebufferSize(window, &frame_width, &frame_height); //フレームバッファ・サイズなので注意！！！二倍の大きさのが帰ってくる
+        glfwGetFramebufferSize(window, &frame_width, &frame_height); //フレームバッファ・サイズなので注意！！！二倍の大きさ?のが帰ってくる
         glfwGetWindowSize(window, &w_width, &w_height);
         std::cout << frame_width << ", " << frame_height << std::endl;
 
@@ -209,14 +209,11 @@ double update_fps_counter(GLFWwindow * _window) {
 int main()
 {
     world::Window wd(800, 600, "Test");
-    wd.EnbaleImageCapturing();
+    wd.EnableFrameCapturing();
 
     world::Circle ccl(0.1, 50);
 
-//    TextUtil txt(const_cast<GLFWwindow *>(wd.GetWindowContext()));
-
-    world::Text txt;
-    world::TextUtil tu(wd);
+    world::Text tu(wd);
 
     double lastTime = glfwGetTime();
     int nbFrames = 0;
@@ -229,26 +226,10 @@ int main()
     while (wd.IsClose()) {
         wd.HandleEvent();
 
-//        // Measure speed
-//        double currentTime = glfwGetTime();
-//        nbFrames++;
-//        if ( currentTime - lastTime >= 1.0 ){ // If last prinf() was more than 1 sec ago
-//            // printf and reset timer
-////            printf("%f ms/frame\n", 1000.0/double(nbFrames));
-//            fps =1000.0/double(nbFrames);
-//            sprintf(buff, "%3.2f", fps);
-//            buff_fps = buff;
-//            glfwSetWindowTitle(const_cast<GLFWwindow *>(wd.GetWindowContext()), buff);
-//            nbFrames = 0;
-//            lastTime += 1.0;
-//        }
-
         wd.ClearColor(0.2f, 0.3f, 0.3f);
 
 
         wd.Draw(ccl, glm::vec2(0, 0), glm::vec3(0.5, 0.8f, 0.2f));
-//        txt.RenderText("abcdefgh", 0, 100, 0.3, glm::vec3(0.5, 0.8f, 0.2f));
-//        wd.Draw(txt, glm::vec2(100, 100), glm::vec3(0.5, 0.8f, 0.2f), "Hello Text", 0.1);
         sprintf(buff, "%3.2f", fps);
         buff_fps = buff;
         tu.RenderText(buff_fps, glm::vec2(10, 10), glm::vec3(0.5, 0.8f, 0.2f), 0.5);
