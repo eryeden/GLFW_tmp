@@ -41,9 +41,14 @@ namespace world{
 
         const double DEFAULT_LINE_THICKNESS = 0.01; // デフォルトの線の長さ
 
+        //テキストレンダリング用TTFファイルパス
         const std::string DEFAULT_FONT_PATH_PREFIX = FONTS_DIR_PREFIX;
         const std::string DEFAULT_TTF_FILE = "arial.ttf";
         const unsigned int DEFAULT_FONT_LOAD_SIZE = 48;
+
+        //動画書き出し用ファイルパス
+        const std::string DEFAULT_PATH_TO_IMAGE = IMAGE_DIR;
+        const std::string DEFAULT_IMAGE_PREFIX = "temp";
 
     };
 
@@ -178,11 +183,9 @@ namespace world{
         Text(const std::string & path_to_ttf_);
         Text(const std::string & path_to_ttf_, unsigned int font_load_size_);
 
-        void Render(GLuint program_id_
-                , const std::string &text_
-                , const glm::vec2 &point_
-                , GLfloat scale_
-                , const glm::vec3 &color_);
+        const GLuint GetProgramID() const {return text_program_id;};
+
+        void RenderText(std::string text, GLfloat x, GLfloat y, GLfloat scale);
 
     private:
 
@@ -196,12 +199,9 @@ namespace world{
 
         std::map<GLchar, Character> Characters;
 
+        GLuint text_program_id;
 
     };
-
-
-
-
 
 
     class  Window{
@@ -218,11 +218,16 @@ namespace world{
         void HandleEvent(); //諸々イベントを処理
         void SwapBuffers(); //スワップバッファ
 
+        void EnbaleImageCapturing() {is_capture_frame = true;};
+        void DisableImageCapturing() {is_capture_frame = false;};
+
         //いずれ消す
         const GLFWwindow * GetWindowContext();
 
 //        void SetWindowName(const std::string & window_name_); //ウィンドウの名前を設定
 //        void SetWindowSize(unsigned int height_, unsigned int width_); //ウィンドウのサイズを設定
+        const glm::i32vec2 GetWindowSize() const { glm::i32vec2 size; glfwGetWindowSize(window, &size.x, &size.y); return size;};
+        const glm::i32vec2 GetFrameBufferSize() const { glm::i32vec2 size; glfwGetFramebufferSize(window, &size.x, &size.y); return size;};
 
 
         void SetCenterPoint(double px_, double py_); //中心点の指定 View行列の設定
@@ -255,7 +260,11 @@ namespace world{
         static void key_callback(GLFWwindow* window_, int key_, int scancode_, int action_, int mode_);
 
 
-    //private:
+        const glm::mat4 GetProjection() const {return P;};
+        const glm::mat4 GetProjectionOrtho() const {return P_ortho;};
+        const glm::mat4 GetProjectionText() const {return P_text;};
+
+    private:
 
         //GLFW window context
         GLFWwindow* window; // shared pointer にすべき？
@@ -302,6 +311,39 @@ namespace world{
         GLint font_P;
         GLint font_TextColor;
 
+
+        //フレームバッファを読んで保存する
+        bool is_capture_frame;
+        unsigned long frame_index;
+        void CaptureFrame();
+
+    };
+
+
+    class TextUtil: public GraphicsBase{
+    public:
+
+        TextUtil(const Window & window_);
+        TextUtil(const Window & window_, const std::string & path_to_ttf_);
+        TextUtil(const Window & window_, const std::string & path_to_ttf_, unsigned int font_load_size_);
+
+        void RenderText(const std::string & text, const glm::vec2 & point_, const glm::vec3 & color_, GLfloat scale_);
+
+    private:
+
+        /// Holds all state information relevant to a character as loaded using FreeType
+        struct Character {
+            GLuint TextureID;   // ID handle of the glyph texture
+            glm::ivec2 Size;    // Size of glyph
+            glm::ivec2 Bearing;  // Offset from baseline to left/top of glyph
+            GLuint Advance;    // Horizontal offset to advance to next glyph
+        };
+
+        const Window & window;
+
+        std::map<GLchar, Character> Characters;
+
+        GLuint text_program_id;
 
     };
 

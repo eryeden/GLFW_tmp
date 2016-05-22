@@ -5,6 +5,11 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <memory>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+
 
 
 #include <cmath>
@@ -20,6 +25,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "World.hpp"
 #include "shader.hpp"
@@ -45,6 +51,8 @@ Window::Window(const std::string & window_name_)
 
 //サイズと名前をつけてウィンドウの生成
 Window::Window(unsigned int width_, unsigned int height_, const std::string & window_name_)
+        : is_capture_frame(false)
+        , frame_index(0)
 {
 
     // Initialise GLFW
@@ -227,6 +235,8 @@ void Window::HandleEvent(){
 }
 
 void Window::SwapBuffers(){
+    //入れ替える前にフレームバッファを保存
+    if(is_capture_frame) CaptureFrame();
     glfwSwapBuffers(window);
 }
 
@@ -360,9 +370,69 @@ void Window::Draw(Text& text_
         , const std::string & txt_
         , double scale_) {
 
-    glUseProgram(font_program_id);
-    glUniformMatrix4fv(font_P, 1, GL_FALSE, &P_text[0][0]);
-    text_.Render(font_program_id, txt_, p_, static_cast<float>(scale_), color_);
+    int frame_width, frame_height;
+    glfwGetWindowSize(window, &frame_width, &frame_height);
+    P_text = glm::ortho((float)0.0, (float)frame_width, (float)0.0, (float)frame_height);
+
+    glUseProgram(text_.GetProgramID());
+
+    glUniformMatrix4fv(glGetUniformLocation(text_.GetProgramID(), "projection")
+            , 1, GL_FALSE, glm::value_ptr(P_text));
+    glUniform3f(glGetUniformLocation(text_.GetProgramID(), "textColor"), color_.x, color_.y, color_.z);
+    text_.RenderText(txt_, p_.x, p_.y, static_cast<float>(scale_));
+}
+
+
+//フレームバッファの保存を行う
+void Window::CaptureFrame() {
+    glm::i32vec2 w_size = GetFrameBufferSize(); //ここでWindowサイズを取ると領域が足りない
+    unsigned char * image_buf = new unsigned char[w_size.x * w_size.y * 3];
+    unsigned char * out_buf = new unsigned char[w_size.x * w_size.y * 3];
+
+    //フレームバッファの読み込み
+    glReadBuffer( GL_BACK ); //ダブルバッファの裏を読む
+    glReadPixels(0, 0, w_size.x, w_size.y, GL_RGB, GL_UNSIGNED_BYTE, image_buf);
+
+    //メモリ上で画像の上下を入れ替え
+    int y;
+    for(y=0;y<w_size.y;y++){
+        memcpy(&out_buf[(y * w_size.x) * 3]
+                , &image_buf[((w_size.y - y - 1) * w_size.x) * 3]
+                , w_size.x * 3);
+    }
+
+    std::ofstream file;
+    std::ostringstream fnamestr;
+    fnamestr << Constants::DEFAULT_PATH_TO_IMAGE
+            << Constants::DEFAULT_IMAGE_PREFIX << "_"
+            << std::setfill('0') << std::setw(5) << frame_index
+            << ".ppm";
+    file.open(fnamestr.str(), std::ios::out|std::ios::binary|std::ios::trunc);
+
+    // PPMタイプ
+    file << "P6" << std::endl;
+    file << w_size.x << " " << w_size.y << std::endl;
+    // 諧調数
+    file << "255" << std::endl;
+    /* 画像データの出力 */
+    //file.write(reinterpret_cast<const char *>(image_buf), w_size.x * w_size.y * 3); //上下反転してしまう
+
+    //行ごとに保存すればだいぶ早い 反転した画像をまとめて保存したほうが早い
+//    int y;
+//    for(y=0;y<w_size.y;y++){
+//        file.write(reinterpret_cast<const char*>(&image_buf[((w_size.y - y - 1) * w_size.x) * 3]), w_size.x * 3);
+//    }
+
+    //反転した画像をまとめて書き込み
+    file.write(reinterpret_cast<const char *>(out_buf), w_size.x * w_size.y * 3); //上下反転してしまう
+
+
+    file.close();
+
+    delete[] image_buf;
+    delete[] out_buf;
+
+    frame_index++;
 }
 
 

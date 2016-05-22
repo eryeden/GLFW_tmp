@@ -187,27 +187,81 @@ private:
 
 };
 
+
+double update_fps_counter(GLFWwindow * _window) {
+    static double previous_seconds = glfwGetTime();
+    static int frame_count;
+    static double fps = 0;
+    double current_seconds = glfwGetTime();
+    double elapsed_seconds = current_seconds - previous_seconds;
+    if (elapsed_seconds > 0.25) {
+        previous_seconds = current_seconds;
+        fps = (double)frame_count / elapsed_seconds;
+        char tmp[128];
+        sprintf(tmp, "MCS @ fps: %.2f", fps);
+        glfwSetWindowTitle(_window, tmp);
+        frame_count = 0;
+    }
+    frame_count++;
+    return fps;
+}
+
 int main()
 {
     world::Window wd(800, 600, "Test");
+    wd.EnbaleImageCapturing();
 
     world::Circle ccl(0.1, 50);
 
-    TextUtil txt(const_cast<GLFWwindow *>(wd.GetWindowContext()));
+//    TextUtil txt(const_cast<GLFWwindow *>(wd.GetWindowContext()));
+
+    world::Text txt;
+    world::TextUtil tu(wd);
+
+    double lastTime = glfwGetTime();
+    int nbFrames = 0;
+    double fps = 0;
+    std::string buff_fps = "0";
+    char buff[128];
+
+    long i = 0;
 
     while (wd.IsClose()) {
         wd.HandleEvent();
+
+//        // Measure speed
+//        double currentTime = glfwGetTime();
+//        nbFrames++;
+//        if ( currentTime - lastTime >= 1.0 ){ // If last prinf() was more than 1 sec ago
+//            // printf and reset timer
+////            printf("%f ms/frame\n", 1000.0/double(nbFrames));
+//            fps =1000.0/double(nbFrames);
+//            sprintf(buff, "%3.2f", fps);
+//            buff_fps = buff;
+//            glfwSetWindowTitle(const_cast<GLFWwindow *>(wd.GetWindowContext()), buff);
+//            nbFrames = 0;
+//            lastTime += 1.0;
+//        }
 
         wd.ClearColor(0.2f, 0.3f, 0.3f);
 
 
         wd.Draw(ccl, glm::vec2(0, 0), glm::vec3(0.5, 0.8f, 0.2f));
-        txt.RenderText("abcdefgh", 0, 100, 0.3, glm::vec3(0.5, 0.8f, 0.2f));
+//        txt.RenderText("abcdefgh", 0, 100, 0.3, glm::vec3(0.5, 0.8f, 0.2f));
+//        wd.Draw(txt, glm::vec2(100, 100), glm::vec3(0.5, 0.8f, 0.2f), "Hello Text", 0.1);
+        sprintf(buff, "%3.2f", fps);
+        buff_fps = buff;
+        tu.RenderText(buff_fps, glm::vec2(10, 10), glm::vec3(0.5, 0.8f, 0.2f), 0.5);
 
+
+        fps = update_fps_counter(const_cast<GLFWwindow *>(wd.GetWindowContext()));
         wd.SwapBuffers();
     }
 
 }
+
+
+
 
 
 

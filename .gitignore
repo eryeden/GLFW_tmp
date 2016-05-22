@@ -9,13 +9,13 @@
 *.pch
 
 # Libraries
-//*.lib
+#*.lib
 *.a
 *.la
 *.lo
 
 # Shared objects (inc. Windows DLLs)
-//*.dll
+#*.dll
 *.so
 *.so.*
 *.dylib
@@ -202,3 +202,9 @@ compile_commands.json
 
 # For Clion configuration files
 .idea
+
+
+#Captured data
+MovieDir
+*.ppm
+*.mpeg
