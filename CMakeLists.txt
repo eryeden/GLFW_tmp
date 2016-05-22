@@ -104,7 +104,6 @@ add_subdirectory(test3)
 add_subdirectory(World)
 add_subdirectory(World2)
 add_subdirectory(WorldText)
-add_subdirectory(WorldText2)
 
 
 
