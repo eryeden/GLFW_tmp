@@ -208,3 +208,7 @@ compile_commands.json
 MovieDir
 *.ppm
 *.mpeg
+
+#Do not include font files
+#Fonts
+*.ttf
