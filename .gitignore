@@ -209,6 +209,17 @@ MovieDir
 *.ppm
 *.mpeg
 
-#Do not include font files
+#Not include font files
 #Fonts
 *.ttf
+
+
+Temp
+
+
+
+
+
+
+
+
