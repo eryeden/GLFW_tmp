@@ -49,12 +49,63 @@ double rk4(double x, double t, double dt, double param[]){
     return (k1 + 2.0*k2 + 2.0*k3 + k4)/6.0 + x;
 }
 
+class COsci{
+public:
+
+
+    double Update(const COsci & osci_){
+        double k1, k2, k3, k4;
+        k1 = dt * f(osci_.phi)
+
+    };
+
+
+private:
+
+    double f(double phi_);
+    double q(double df){return ep * sin(df);};
+    double ep;
+    double w;
+    double dt;
+    double phi;
+};
+
+/*
+ * 悩み：相互作用項をどうするか
+ * システム：phi_dot = omega + eps * q( phi_i - phi_(i+1) )
+ */
+double x_dot(double w_, double eps_,double x_, double xx_){
+    return (w_ + eps_ * sin(xx_ - x_));
+}
+
+void RK4(double x[], double x_out[], double param[], double dt){
+    double w1, w2, eps;
+    w1 = param[0];
+    w2 = param[1];
+    eps = param[2];
+
+    double k1[2], k2[2], k3[2], k4[2];
+    k1[0] = dt * x_dot(w1, eps, x[0], x[1]);
+    k1[1] = dt * x_dot(w2, eps, x[1], x[0]);
+
+    k2[0] = dt * x_dot(w1, eps, x[0] + k1[0] * 0.5, x[1] + k1[1] * 0.5);
+    k2[1] = dt * x_dot(w1, eps, x[1] + k1[1] * 0.5, x[0] + k1[0] * 0.5);
+
+    k3[0] = dt * x_dot(w1, eps, x[0] + k2[0] * 0.5, x[1] + k2[1] * 0.5);
+    k3[1] = dt * x_dot(w1, eps, x[1] + k2[1] * 0.5, x[0] + k2[0] * 0.5);
+
+    k4[0] = dt * x_dot(w1, eps, x[0] + k3[0], x[1] + k1[1]);
+    k4[1] = dt * x_dot(w1, eps, x[1] + k3[1], x[0] + k1[0]);
+
+    x_out[0] = (k1[0] + k2[0] + k3[0] + k4[0])/6.0 + x[0];
+
+}
 
 int main()
 {
     world::Window wd(800, 600, "Test");
-//    wd.EnableFrameCapturing();
-    wd.SetVisibleArea(10);
+    wd.EnableFrameCapturing();
+    wd.SetVisibleArea(5);
     wd.SetCenterPoint(vec2(0, 0));
 
     //単位円
@@ -85,19 +136,11 @@ int main()
     std::string buff_fps = "0";
     char buff[128];
 
-    long i = 0;
 
-    double a = 4.5;
-    double w = 5;
-    double param[2];
-    param[0] = w;
-    param[1] = a;
-
-    double phi = 0;
+    double phi[2];
 
     double dt = 1.0/60.0;
     double t = 0;
-
 
     while (wd.IsClose()) {
         wd.HandleEvent();
@@ -107,11 +150,9 @@ int main()
         //単位円の描画
         wd.Draw(line_uc, vec2(0, 0), vec3(0, 0, 0), 0.003);
 
-        //w_aの直線の描画
-        wd.Draw(line_w_a, vec2(w/a, 0), vec3(0, 0, 1), 0.003);
-
         //円の描画
         wd.Draw(ccl, vec2(cos(phi), sin(phi)), vec3(0.8f, 0.2f, 0.2f));
+
 
         sprintf(buff, "FPS:%3.2f", fps);
         buff_fps = buff;

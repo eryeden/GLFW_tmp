@@ -105,6 +105,8 @@ add_subdirectory(World)
 add_subdirectory(World2)
 add_subdirectory(WorldText)
 add_subdirectory(Sample1)
+add_subdirectory(ActiveRotator)
+add_subdirectory(CoupledOscillator)
 
 
 
